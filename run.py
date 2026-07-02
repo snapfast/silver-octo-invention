@@ -1,6 +1,5 @@
 import setup
 from time import sleep
-from BUMBLE import swipe
 from LINKEDIN import recommended_page
 from LINKEDIN import search_jobs
 from LINKEDIN import connect_people
@@ -29,7 +28,6 @@ Which service to automate ?
 1. WellFound
 2. Linkedin
 3. Naukri
-4. Bumble
 0. Exit
 	""")
 SERVICE = int(input())
@@ -79,11 +77,6 @@ elif SERVICE == 3:
 	print("Applying Naukri Recommended Jobs.")
 	n = n_rec.NaukriBot()
 	n.click_job()
-elif SERVICE == 4:
-	print("Bumble Selected")
-	print("Swiping right on all profiles :P")
-	b = swipe.BumbleBot()
-	b.right_swipe()
 else:
 	exit()
 

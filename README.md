@@ -1,29 +1,51 @@
 # AutoMates
+
+AutoMates is a Python-based automation tool to help you streamline your job application process on major job portals like LinkedIn, Naukri, and Wellfound using Selenium.
+
 Not Updating the code, fixes are welcome. I will try to merge your code as early as possible.
 
-## Setup (Ubuntu)
+## Prerequisites
 
-Run the  command to install the only package needed `selenium`.
+- **Python 3.10 and above**
+- **Google Chrome** installed on your system.
 
-- `sudo apt install python3-selenium`
-- `git clone https://github.com/snapfast/AutoMates`
-- `cd Automates`
-- `python run.py`
-- Just use the menu to do things.
+## Setup (Ubuntu / General)
 
-This program is only supported on Python 3.10 and above.
+Run the following commands to clone the repository and install the required `selenium` package.
 
-### For adding new features/ideas, open a new issue [here](https://github.com/snapfast/AutoMates/issues/new).
+```bash
+git clone https://github.com/snapfast/AutoMates
+cd AutoMates
+pip install selenium
+python run.py
+```
 
-## Selenium Manager
+Just follow the interactive menu to select the job site and automate the tasks.
 
-> Since the release of selenium manager, browsers like chrome, firefox and safari drivers are automatically configured by selenium.
-> Read more here https://www.selenium.dev/blog/2022/introducing-selenium-manager/
+### Note on WebDrivers
 
+**Selenium Manager**: Since the release of Selenium Manager, browsers like Chrome, Firefox, and Safari drivers are automatically configured by Selenium. You do not need to manually download or specify the `chromedriver` path.
+Read more here: https://www.selenium.dev/blog/2022/introducing-selenium-manager/
 
+## Usage
 
-__NOTE: RAISE ISSUE IF SOMETHING NOT WORKING ;)__
+When you run `python run.py` for the first time, you will be prompted to login:
+1. Select the option to let the script open a Chrome window for you.
+2. You will have two minutes to manually log in to the job sites (LinkedIn, Naukri, etc.).
+3. Once logged in, the script saves your session data locally so you don't have to log in again in subsequent runs.
+
+Choose the service to automate:
+1. **WellFound**: Automate connection requests.
+2. **LinkedIn**:
+    - Apply to LinkedIn Recommended Jobs.
+    - Search jobs based on Position and Location, and apply to Easy Apply jobs.
+    - Connect to people at specific companies.
+    - Stalk profiles to increase profile views.
+    - Connect to recruiters hiring for certain positions.
+3. **Naukri**: Apply to Naukri Recommended Jobs.
 
 ## Points to Note
 
-There is no upload feature yet, files should be manually pre-uploaded.
+- There is no automatic upload feature yet; resumes or cover letter files should be manually pre-uploaded to the job portals beforehand.
+- If you encounter issues, please raise an issue on GitHub.
+- For adding new features or ideas, open a new issue [here](https://github.com/snapfast/AutoMates/issues/new).
