@@ -72,8 +72,7 @@ class LinkedinBot():
 
 
 if __name__ == '__main__':
-    position = argv[1]
-    location = argv[2]
+    any_profile_link = argv[1] if len(argv) > 1 else 'https://www.linkedin.com/in/some-profile/'
 
-    lb = LinkedinBot()
-    lb.connect()
+    lb = LinkedinBot(any_profile_link)
+    lb.stalk_on()

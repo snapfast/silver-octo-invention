@@ -153,5 +153,6 @@ class LinkedinBot():
 
 
 if __name__ == '__main__':
-    rp = LinkedinBot(job_profile='python hiring')
+    job_profile = argv[1] if len(argv) > 1 else 'python hiring'
+    rp = LinkedinBot(job_profile=job_profile)
     rp.apply_job()
