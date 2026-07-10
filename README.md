@@ -1,8 +1,8 @@
-# AutoMates
+# silver-octo-invention
 
-AutoMates is a powerful, interactive Python-based automation tool built with Selenium to streamline and accelerate your job application process on major job portals.
+silver-octo-invention is a powerful, interactive Python-based automation tool built with Selenium to streamline and accelerate your job application process on major job portals.
 
-> **Note:** AutoMates currently targets automation for **LinkedIn** and **Naukri**, with support for saving browser session data locally so you don't have to log in repeatedly.
+> **Note:** silver-octo-invention currently targets automation for **LinkedIn** and **Naukri**, with support for saving browser session data locally so you don't have to log in repeatedly.
 
 ---
 
@@ -27,18 +27,18 @@ AutoMates is a powerful, interactive Python-based automation tool built with Sel
 
 - **Python 3.10 and above**
 - **Google Chrome** installed on your system.
-- **Selenium Manager**: AutoMates leverages Selenium 4's built-in *Selenium Manager*. It automatically manages the browser drivers (like `chromedriver`) based on your installed Chrome version. **No manual driver installation or path configuration is required.**
+- **Selenium Manager**: silver-octo-invention leverages Selenium 4's built-in *Selenium Manager*. It automatically manages the browser drivers (like `chromedriver`) based on your installed Chrome version. **No manual driver installation or path configuration is required.**
 
 ---
 
 ## Installation & Setup
 
-Follow these simple steps to set up and run AutoMates on your machine:
+Follow these simple steps to set up and run silver-octo-invention on your machine:
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/snapfast/AutoMates
-   cd AutoMates
+   git clone https://github.com/snapfast/silver-octo-invention
+   cd silver-octo-invention
    ```
 
 2. **Install Dependencies**:
@@ -103,6 +103,6 @@ EasyApplyButtonXPath = "//button[@class='jobs-apply-button artdeco-button artdec
 
 ## Points to Note & Best Practices
 
-- **Resumes & Cover Letters**: Ensure your default resumes/CVs and profile details are pre-uploaded and completed on LinkedIn and Naukri. AutoMates executes the submission click flow but does not upload files dynamically.
+- **Resumes & Cover Letters**: Ensure your default resumes/CVs and profile details are pre-uploaded and completed on LinkedIn and Naukri. silver-octo-invention executes the submission click flow but does not upload files dynamically.
 - **Account Safety**: Use automation responsibly. Setting excessively fast speeds or running the script constantly may trigger portal rate limits.
 - **Contributions**: Contributions, bug fixes, and feature additions are highly welcome! Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

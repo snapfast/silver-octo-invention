@@ -1,9 +1,9 @@
 # How to contribute
 
 Support and contributions from the open source community are essential for keeping
-`@snapfast/AutoMates` up to date and always improving! There are a few guidelines that we need
+`@snapfast/silver-octo-invention` up to date and always improving! There are a few guidelines that we need
 contributors to follow to keep the project consistent, as well as allow us to keep
-maintaining `@snapfast/AutoMates` in a reasonable amount of time.
+maintaining `@snapfast/silver-octo-invention` in a reasonable amount of time.
 
 Please note that this project is released with a [Contributor Code of Conduct][coc].
 By participating in this project you agree to abide by its terms.
@@ -14,7 +14,7 @@ By participating in this project you agree to abide by its terms.
 
 Before you create a new Issue:
 
-1. Please make sure there is no [open issue](https://github.com/snapfast/automates/issues) yet.
+1. Please make sure there is no [open issue](https://github.com/snapfast/silver-octo-invention/issues) yet.
 2. If it is a bug report, include the steps to reproduce the issue and please create a reproducible test case on [runkit.com](https://runkit.com/). Example: https://runkit.com/gr2m/5aa034f1440b420012a6eebf
 3. If it is a feature request, please share the motivation for the new feature and how you would implement it.
 4. Please include links to the corresponding github documentation.
