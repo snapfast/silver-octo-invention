@@ -1,3 +1,16 @@
+try:
+    import selenium
+except ModuleNotFoundError:
+    import sys
+    print("\n" + "="*60)
+    print("Error: The 'selenium' library is not installed.")
+    print("Please install the required dependencies by running:")
+    print("\n    pip install -r requirements.txt")
+    print("    or")
+    print("    pip install selenium")
+    print("="*60 + "\n")
+    sys.exit(1)
+
 import setup
 from time import sleep
 from LINKEDIN import recommended_page
