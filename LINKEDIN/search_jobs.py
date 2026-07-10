@@ -216,8 +216,8 @@ class LinkedinBot:
 
 
 if __name__ == "__main__":
-    position = argv[1]
-    location = argv[2]
+    position = argv[1] if len(argv) > 1 else "software engineer"
+    location = argv[2] if len(argv) > 2 else "germany"
 
     lb = LinkedinBot()
     lb.do_search(position, location)

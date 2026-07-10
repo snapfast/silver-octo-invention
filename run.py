@@ -11,8 +11,18 @@ from LINKEDIN import connect_recruiter
 # creating a UI in python using pyqt6
 # https://www.youtube.com/watch?v=Vde5SH8e1OQ&list=PLzMcBGfZo4-lB8MZfHPLTEHO9zJDDLpYj
 
+def ask_choice(prompt, valid_choices=None):
+	while True:
+		try:
+			choice = int(input(prompt))
+			if valid_choices is None or choice in valid_choices:
+				return choice
+			print(f"Invalid choice. Please select from {valid_choices}.")
+		except ValueError:
+			print("Please enter a valid number.")
+
 print("1. Let me login to the website.\n2. I am already logged in previously using this script.")
-FIRST_SETUP = int(input())
+FIRST_SETUP = ask_choice("> ", [1, 2])
 if FIRST_SETUP == 1:
 	# letting the user to login
 	print("Chrome window will open to let you login to the accounts. \nYou have two minutes to login to your account :)")
@@ -30,7 +40,7 @@ Which service to automate ?
 3. Naukri
 0. Exit
 	""")
-SERVICE = int(input())
+SERVICE = ask_choice("> ", [0, 1, 2, 3])
 
 # ask input if required
 if SERVICE == 1:
@@ -45,7 +55,7 @@ Choose below ?
 4. Stalk Profiles (opens a link from profile you give, then keeps on.)
 5. Connect to recruiter who is hiring certain position.
 	""")
-	LINKEDIN_SERVICE = int(input())
+	LINKEDIN_SERVICE = ask_choice("> ", [1, 2, 3, 4, 5])
 	if LINKEDIN_SERVICE == 1:
 		print("Applying Linkedin Recommended Page..")
 		rp = recommended_page.LinkedinBot()

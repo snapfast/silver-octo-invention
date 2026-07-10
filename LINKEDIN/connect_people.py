@@ -91,8 +91,7 @@ def check_connect_text(first, second):
 
 
 if __name__ == '__main__':
-    position = argv[1]
-    location = argv[2]
+    company_name = argv[1] if len(argv) > 1 else 'paypal'
 
-    lb = LinkedinBot()
+    lb = LinkedinBot(company_name)
     lb.connect()
