@@ -53,6 +53,18 @@ Follow these simple steps to set up and run silver-octo-invention on your machin
 
 ---
 
+## Testing
+
+The project includes unit tests to verify automation logic, search parameter handling, and job application flows without needing active browser interactions.
+
+To run the test suite:
+
+```bash
+python3 -m unittest discover tests
+```
+
+---
+
 ## How to Use
 
 When you run `python3 run.py`, an interactive command-line interface will guide you through the process:
