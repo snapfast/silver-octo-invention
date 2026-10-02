@@ -2,14 +2,13 @@ from os import path
 from sys import argv
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import NoSuchWindowException
-from selenium.common.exceptions import ElementNotInteractableException
-
-# from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    NoSuchWindowException,
+    ElementNotInteractableException,
+    ElementClickInterceptedException,
+)
 from selenium.webdriver.common.by import By
-
-# from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
@@ -22,8 +21,7 @@ local_bin_directory = home_directory + "/bin/"
 class LinkedinBot:
 
     def __init__(self):
-        # term = self.term
-        self.page_number = 5
+        self.page_number = 1
         chrome_options = Options()
         chrome_options.add_argument(
             f"--user-data-dir={local_bin_directory}/chrome-data"
@@ -33,186 +31,257 @@ class LinkedinBot:
         service = Service()
 
         self.driver = webdriver.Chrome(service=service, options=chrome_options)
-        self.driver.get("https://linkedin.com/jobs")
-        sleep(2)
+        self.driver.get("https://www.linkedin.com/jobs")
+        sleep(3)
 
     def go_exit(self):
-        self.driver.close()
-        self.driver.quit()
+        try:
+            self.driver.close()
+            self.driver.quit()
+        except Exception:
+            pass
 
     def do_search(self, position="software engineer", location="germany"):
-        box = self.driver.find_elements(
-            by=By.CLASS_NAME, value="jobs-search-box__text-input"
-        )
-        box[0].click()
-        sleep(1)
-        box[0].send_keys(position + "\n")  # job title
-        # box[3].send_keys(location + "\n")  # location
-        sleep(5)
-
-        # turn on filter for the Easy Apply Jobs, all jobs will be easy ones
         try:
-            easy_apply_filter_parent = self.driver.find_element(
-                by=By.CLASS_NAME, value="search-reusables__filter-binary-toggle"
+            boxes = self.driver.find_elements(
+                by=By.CLASS_NAME, value="jobs-search-box__text-input"
             )
-            easy_apply_filter_parent.find_element(
-                by=By.TAG_NAME, value="button"
-            ).click()
-            print(easy_apply_filter_parent.text)
-        except:
-            print("not able to find the easy button")
+            if boxes:
+                boxes[0].click()
+                sleep(1)
+                boxes[0].send_keys(position + "\n")
+                sleep(3)
 
-        sleep(5)
-        self.change_page()
-
-        sleep(5)
+            # Turn on Easy Apply filter if present
+            filter_selectors = [
+                (By.CLASS_NAME, "search-reusables__filter-binary-toggle"),
+                (By.XPATH, "//button[contains(@aria-label, 'Easy Apply filter')]"),
+                (By.XPATH, "//button[contains(span/text(), 'Easy Apply')]"),
+            ]
+            for by, val in filter_selectors:
+                try:
+                    elem = self.driver.find_element(by=by, value=val)
+                    btn = elem if elem.tag_name == "button" else elem.find_element(By.TAG_NAME, "button")
+                    btn.click()
+                    print("Toggled Easy Apply filter")
+                    break
+                except Exception:
+                    continue
+            sleep(3)
+        except Exception as e:
+            print("Error during job search setup:", e)
 
     def change_page(self):
-        # get the current page number, self.page_number
-        # then find that page number element, then click the element
         self.page_number += 1
         try:
-            next_page_list_item = self.driver.find_element(
-                by=By.XPATH,
-                value=f"//li[@data-test-pagination-page-btn='{self.page_number}']",
-            )
-            print(next_page_list_item)
-            print(next_page_list_item.get_attribute("class"))
-            next_page_button = next_page_list_item.find_element(
-                by=By.TAG_NAME, value="button"
-            )
-            print(next_page_button)
-            print(next_page_button.get_attribute("aria-label"))
-            next_page_button.click()
-        except NoSuchElementException as NoSuch:
-            print(NoSuch, "\n cool enough")
+            selectors = [
+                f"//li[@data-test-pagination-page-btn='{self.page_number}']//button",
+                f"//button[@aria-label='Page {self.page_number}']",
+                f"//button[span[text()='{self.page_number}']]",
+            ]
+            next_page_button = None
+            for selector in selectors:
+                buttons = self.driver.find_elements(by=By.XPATH, value=selector)
+                if buttons:
+                    next_page_button = buttons[0]
+                    break
+
+            if next_page_button:
+                self.driver.execute_script("arguments[0].scrollIntoView(true);", next_page_button)
+                sleep(1)
+                next_page_button.click()
+                print(f"Navigated to page {self.page_number}")
+            else:
+                print(f"Could not find button for page {self.page_number}")
+        except Exception as e:
+            print("Pagination exception:", e)
 
     def click_easy_jobs(self):
+        while True:
+            left_panel_jobs = []
+            selectors = [
+                (By.CLASS_NAME, "scaffold-layout__list-item"),
+                (By.CLASS_NAME, "jobs-search-results__list-item"),
+                (By.XPATH, "//li[contains(@class, 'job-card-container') or contains(@class, 'jobs-search-results__list-item') or contains(@class, 'scaffold-layout__list-item')]"),
+            ]
 
-        while 1:
-            # left panel jobs
-            try:
-                left_panel_jobs = self.driver.find_elements(
-                    by=By.CLASS_NAME, value="scaffold-layout__list-item"
-                )
-                print(left_panel_jobs)
-            except NoSuchElementException as NoSuch:
-                print(NoSuch, "\n cool")
+            for by, val in selectors:
+                try:
+                    found = self.driver.find_elements(by=by, value=val)
+                    if found:
+                        left_panel_jobs = found
+                        break
+                except NoSuchElementException:
+                    continue
 
             total_jobs = len(left_panel_jobs)
-            print(total_jobs, left_panel_jobs)
+            print(f"Found {total_jobs} jobs on page {self.page_number}")
 
-            # storing the main tab context
+            if total_jobs == 0:
+                print("No more jobs found on this page.")
+                break
+
             original_window = self.driver.current_window_handle
             j = 0
 
-            # looping on each left panel job one by one.
             while j < total_jobs:
-                sleep(4)
+                sleep(2)
+                # Re-fetch list items in case DOM refreshed
+                for by, val in selectors:
+                    try:
+                        found = self.driver.find_elements(by=by, value=val)
+                        if found and len(found) > j:
+                            left_panel_jobs = found
+                            break
+                    except Exception:
+                        pass
+
+                job_item = left_panel_jobs[j]
+
                 try:
-                    # this is the element which is clicked from left side list to open in new tab
-                    job_name_element = left_panel_jobs[j].find_element(
-                        by=By.CLASS_NAME, value="job-card-list__title--link"
-                    )
-                    # company_name_element = left_panel_jobs[j].find_element(
-                    #     by=By.CLASS_NAME, value='job-card-container__company-name')
-                    # location_element = left_panel_jobs[j].find_element(
-                    #     by=By.CLASS_NAME,
-                    #     value='job-card-container__metadata-wrapper')
-                    jname = job_name_element.text
-                    # cname = company_name_element.text
-                    # lname = location_element.text
+                    title_selectors = [
+                        (By.CLASS_NAME, "job-card-list__title--link"),
+                        (By.CLASS_NAME, "job-card-list__title"),
+                        (By.XPATH, ".//a[contains(@class, 'job-card-list__title')]"),
+                    ]
+
+                    job_name_element = None
+                    for by, val in title_selectors:
+                        try:
+                            job_name_element = job_item.find_element(by=by, value=val)
+                            if job_name_element:
+                                break
+                        except NoSuchElementException:
+                            continue
+
+                    if not job_name_element:
+                        print(f"Could not locate job title for item {j}, skipping.")
+                        j += 1
+                        continue
+
+                    jname = job_name_element.text or "Unknown Job"
                     job_url = job_name_element.get_attribute("href")
-                    print(job_url)
 
-                    with open(r"filename.txt", "a") as f:
+                    if not job_url:
+                        print(f"No URL for job {jname}, skipping.")
+                        j += 1
+                        continue
 
-                        print(jname, file=f)
-                    self.driver.execute_script(
-                        "arguments[0].scrollIntoView(true);", left_panel_jobs[j]
-                    )
+                    try:
+                        with open("filename.txt", "a", encoding="utf-8") as f:
+                            print(jname, file=f)
+                    except Exception:
+                        pass
+
+                    self.driver.execute_script("arguments[0].scrollIntoView(true);", job_item)
+                    sleep(1)
+
+                    # Open job details in new tab safely
                     self.driver.switch_to.new_window("tab")
-                    self.driver._switch_to.window(self.driver.window_handles[1])
-                    self.driver.get(job_url)
-                    sleep(4)
-                    self.apply_job()
-                    print("now apply cjob completed/.....")
-                    self.driver._switch_to.window(original_window)
+                    new_window = self.driver.window_handles[-1]
+                    self.driver.switch_to.window(new_window)
+
+                    try:
+                        self.driver.get(job_url)
+                        sleep(3)
+                        self.apply_job()
+                        print(f"Finished applying for job: {jname}")
+                    finally:
+                        try:
+                            if len(self.driver.window_handles) > 1 and self.driver.current_window_handle != original_window:
+                                self.driver.close()
+                        except Exception:
+                            pass
+                        self.driver.switch_to.window(original_window)
+
                     j += 1
-                except ElementNotInteractableException:
-                    print("scroll a bit please, cannot see the element yet")
+                except (ElementNotInteractableException, ElementClickInterceptedException):
+                    print("Scroll a bit please, cannot interact with element yet.")
                     sleep(2)
+                    j += 1
+                except Exception as e:
+                    print(f"Unexpected error processing job index {j}: {e}")
+                    j += 1
+
             self.change_page()
 
     def apply_job(self):
         # Section to click the Easy Apply Button on job page
-        gerat = True
-        n = 0
-        while gerat:
+        easy_apply_clicked = False
+        apply_selectors = [
+            "//button[contains(@class, 'jobs-apply-button')]",
+            "//button[contains(@aria-label, 'Easy Apply')]",
+            "//button[span[text()='Easy Apply']]",
+        ]
+
+        for selector in apply_selectors:
             try:
-                sleep(5)
-                apply_buttons = self.driver.find_elements(by=By.CLASS_NAME, value="jobs-apply-button")
-                apply_buttons[1].click()
-                # n += 1
-                print("Clicked the Easy Button")
-                gerat = False
-            except NoSuchElementException:
-                print("Cannot find the button, click Another ~~")
-                break
-            except NoSuchWindowException as win:
-                print("no window bro... ok, I believe you closed it.", win)
-                gerat = False
-            except Exception as e0:
-                print("new exception")
-                print(e0)
+                buttons = self.driver.find_elements(by=By.XPATH, value=selector)
+                for btn in buttons:
+                    if btn.is_displayed() and btn.is_enabled():
+                        btn.click()
+                        print("Clicked the Easy Apply Button")
+                        easy_apply_clicked = True
+                        break
+                if easy_apply_clicked:
+                    break
+            except Exception as e:
+                print(f"Error clicking apply button: {e}")
+
+        if not easy_apply_clicked:
+            print("Cannot find or click Easy Apply button, skipping job.")
+            return
+
         sleep(2)
 
-        gerat = True
-        n = 0
-        cc = 5
-        while gerat:
-            # try:
-            #     checkbox = self.driver.find_element(
-            #         by=By.CLASS_NAME, value="ember-checkbox")
-            #     self.driver.execute_script(
-            #         "arguments[0].scrollIntoView(true);", checkbox)
-            #     checkbox.click()
-            #     print("clicked checkbox")
-            # except Exception as e:
-            #     print(e, "no checkbox")
+        steps_left = 10
+        while steps_left > 0:
+            steps_left -= 1
 
-            # find the element for selecting resume
+            # Check if resume selection button exists
             try:
-                resume_button = self.driver.find_element(
+                resume_buttons = self.driver.find_elements(
                     by=By.XPATH,
-                    value="//button[@class='artdeco-button artdeco-button--1 artdeco-button--tertiary ember-view']",
+                    value="//button[contains(@class, 'artdeco-button') and (text()='Choose' or span[text()='Choose'])]",
                 )
-                if resume_button.text == "Choose":
-                    resume_button.click()
-                    print("resume button clicked")
-            except:
+                for rb in resume_buttons:
+                    if rb.is_displayed():
+                        rb.click()
+                        print("Resume button clicked")
+                        sleep(1)
+                        break
+            except Exception:
                 pass
-            try:
-                self.driver.find_element(
-                    by=By.XPATH,
-                    value="//button[@class='artdeco-button artdeco-button--2 artdeco-button--primary ember-view']",
-                ).click()
-                print("Next / Submit", cc)
-                if cc == 0:
-                    input("Please enter appropriate data on web page")
-                    cc = 5
-                cc -= 1
-                sleep(3)
-            except NoSuchElementException:
-                gerat = False
-            except NoSuchWindowException as win:
-                print("no window bro... ok, I believe you closed it.", win)
-                gerat = False
-        print("job applied")
-        try:
-            self.driver.close()
-        except NoSuchWindowException as ns:
-            print(ns, "window might have been closed by user.")
+
+            # Try clicking Next, Review, or Submit buttons
+            action_clicked = False
+            action_selectors = [
+                "//button[contains(@class, 'artdeco-button--primary') and (span[text()='Submit application'] or span[text()='Review'] or span[text()='Next'])]",
+                "//button[contains(@class, 'artdeco-button--primary') and (text()='Submit application' or text()='Review' or text()='Next')]",
+                "//button[@data-easy-apply-next-button]",
+            ]
+
+            for selector in action_selectors:
+                try:
+                    buttons = self.driver.find_elements(by=By.XPATH, value=selector)
+                    for btn in buttons:
+                        if btn.is_displayed() and btn.is_enabled():
+                            btn.click()
+                            print(f"Clicked flow button (steps remaining: {steps_left})")
+                            action_clicked = True
+                            sleep(2)
+                            break
+                    if action_clicked:
+                        break
+                except Exception:
+                    continue
+
+            if not action_clicked:
+                # Modal might have closed or submitted
+                print("No further action buttons found or modal closed.")
+                break
+
+        print("Job application step finished.")
 
 
 if __name__ == "__main__":
@@ -222,4 +291,3 @@ if __name__ == "__main__":
     lb = LinkedinBot()
     lb.do_search(position, location)
     lb.click_easy_jobs()
-    lb.change_page()
